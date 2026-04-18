@@ -20,6 +20,8 @@ import {
   ChevronUp,
   Sparkles,
   Atom,
+  Upload,
+  Loader2,
 } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -43,6 +45,7 @@ import {
   renameStage,
   getFirstSlideByStages,
 } from '@/lib/utils/stage-storage';
+import { useImportClassroom } from '@/lib/import/use-import-classroom';
 import { ThumbnailSlide } from '@/components/slide-renderer/components/ThumbnailSlide';
 import type { Slide } from '@/lib/types/slides';
 import { useMediaGenerationStore } from '@/lib/store/media-generation';
@@ -176,6 +179,11 @@ function HomePage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Store hydration on mount
     loadClassrooms();
   }, []);
+
+  // Import classroom
+  const { importing, fileInputRef, triggerFileSelect, handleFileChange } = useImportClassroom(
+    loadClassrooms,
+  );
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -600,6 +608,15 @@ function HomePage() {
       </motion.div>
 
       {/* ═══ Recent classrooms — collapsible ═══ */}
+      {/* Hidden file input for import */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".maic.zip"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
       {classrooms.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -608,32 +625,59 @@ function HomePage() {
           className="relative z-10 mt-10 w-full max-w-6xl flex flex-col items-center"
         >
           {/* Trigger — divider-line with centered text */}
-          <button
-            onClick={() => {
-              const next = !recentOpen;
-              setRecentOpen(next);
-              try {
-                localStorage.setItem(RECENT_OPEN_STORAGE_KEY, String(next));
-              } catch {
-                /* ignore */
-              }
-            }}
-            className="group w-full flex items-center gap-4 py-2 cursor-pointer"
-          >
-            <div className="flex-1 h-px bg-border/40 group-hover:bg-border/70 transition-colors" />
-            <span className="shrink-0 flex items-center gap-2 text-[13px] text-muted-foreground/60 group-hover:text-foreground/70 transition-colors select-none">
-              <Clock className="size-3.5" />
-              {t('classroom.recentClassrooms')}
-              <span className="text-[11px] tabular-nums opacity-60">{classrooms.length}</span>
-              <motion.div
-                animate={{ rotate: recentOpen ? 180 : 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-              >
-                <ChevronDown className="size-3.5" />
-              </motion.div>
-            </span>
-            <div className="flex-1 h-px bg-border/40 group-hover:bg-border/70 transition-colors" />
-          </button>
+          <div className="group w-full flex items-center gap-4 py-2">
+            <button
+              onClick={() => {
+                const next = !recentOpen;
+                setRecentOpen(next);
+                try {
+                  localStorage.setItem(RECENT_OPEN_STORAGE_KEY, String(next));
+                } catch {
+                  /* ignore */
+                }
+              }}
+              className="flex-1 flex items-center gap-4 cursor-pointer"
+            >
+              <div className="flex-1 h-px bg-border/40 group-hover:bg-border/70 transition-colors" />
+              <span className="shrink-0 flex items-center gap-2 text-[13px] text-muted-foreground/60 group-hover:text-foreground/70 transition-colors select-none">
+                <Clock className="size-3.5" />
+                {t('classroom.recentClassrooms')}
+                <span className="text-[11px] tabular-nums opacity-60">{classrooms.length}</span>
+                <motion.div
+                  animate={{ rotate: recentOpen ? 180 : 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                >
+                  <ChevronDown className="size-3.5" />
+                </motion.div>
+              </span>
+              <div className="flex-1 h-px bg-border/40 group-hover:bg-border/70 transition-colors" />
+            </button>
+
+            {/* Import button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={triggerFileSelect}
+                  disabled={importing}
+                  className={cn(
+                    'shrink-0 size-7 rounded-full flex items-center justify-center transition-all',
+                    importing
+                      ? 'text-muted-foreground/50 cursor-wait'
+                      : 'text-muted-foreground/60 hover:text-foreground hover:bg-muted/60 active:scale-95',
+                  )}
+                >
+                  {importing ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Upload className="size-3.5" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-xs">
+                {t('import.classroom')}
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
           {/* Expandable content */}
           <AnimatePresence>

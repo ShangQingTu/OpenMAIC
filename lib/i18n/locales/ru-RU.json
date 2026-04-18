@@ -37,7 +37,23 @@
     "resourcePackDesc": "PPTX + интерактивные страницы",
     "exporting": "Экспорт...",
     "exportSuccess": "Экспорт успешен",
-    "exportFailed": "Ошибка экспорта"
+    "exportFailed": "Ошибка экспорта",
+    "classroomZip": "Экспорт ZIP класса",
+    "classroomZipDesc": "Структура курса + медиафайлы"
+  },
+  "import": {
+    "classroom": "Импорт класса",
+    "parsing": "Разбор ZIP...",
+    "validating": "Проверка данных...",
+    "writingMedia": "Запись медиафайлов...",
+    "writingCourse": "Запись данных курса...",
+    "success": "Класс успешно импортирован",
+    "error": {
+      "invalidZip": "Неверный файл. Выберите правильный файл .maic.zip.",
+      "invalidManifest": "Неверный файл класса: manifest.json отсутствует или повреждён.",
+      "missingData": "Неверный файл класса: отсутствуют обязательные данные курса.",
+      "storageFull": "Ошибка импорта: память браузера заполнена. Удалите старые классы."
+    }
   },
   "chat": {
     "lecture": "Лекция",
